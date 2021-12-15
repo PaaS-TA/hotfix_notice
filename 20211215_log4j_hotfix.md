@@ -1,0 +1,265 @@
+## PaaS-TA Application Platform log4j 조치 방법 가이드
+
+본 가이드는 log4j와 관련하여 PaaS-TA Application Platform의 조치 방법에 대한 가이드다.
+
+#### 영향을 받는 버전
+- paasta-deployment 5.6.2 이하 버전
+
+#### 영향을 받는 모듈
+- BOSH (UAA, Credhub)
+- PaaS-TA AP Core (UAA, Credhub)
+
+#### 조치 방안
+- [paasta-deployment 5.6.0 ~ 5.6.2 버전 사용 시](#1)
+  - log4j 관련 패치를 적용한 paasta-deployment 5.6.3 업데이트 (BOSH, PaaS-TA AP)
+     ※ UAA : 75.1.0-PaaS-TA-v3 , Credhub : 2.9.0-PaaS-TA-v2
+
++ [paasta-deployment 5.5.2 이하 버전 사용 시](#2)
+  + UAA와 Credhub를 설치된 버전에 맞춰 릴리즈를 생성 후 릴리즈만 반영하여 업데이트 (BOSH, PaaS-TA AP)
+
+***
+
+#### 조치 방안 세부 설명
+##### <div id='1'> 1. paasta-deployment 5.6.0 ~ 5.6.2 버전 사용 시 (paasta-deployment 5.6.3 업데이트)
+
+###### 1.1. paasta-deployment 5.6.3 다운로드
+
+```
+$ git clone https://github.com/PaaS-TA/paasta-deployment.git -b v5.6.3 paasta-deployment-5.6.3
+```
+
+###### 1.2. 관련 변수 설정
+사용중인 IaaS에 맞춰서 전에 배포하였던 변수 파일을 paasta-deployment-5.6.3에 옮기거나 설치 관련 변수를 작성한다.
+
+- 이동 필요 파일
+    - bosh/{사용중인 IaaS}/creds.yml
+    - bosh/{사용중인 IaaS}/state.json
+-  이동 혹은 수정 필요 파일
+    - bosh/{사용중인 IaaS}-vars.yml
+    - bosh/deploy-{사용중인 IaaS}.sh
+    - paasta/vars.yml
+    - paasta/deploy-{사용중인 IaaS}.sh
+- cce.yml 사용 파일 위치
+    - bosh/deploy-{사용중인 IaaS}.sh
+    - paasta/deploy-{사용중인 IaaS}.sh
+
+
+```
+## 해당 내용이 있는지 체크
+$ vi cce.yml
+- type: replace
+  path: /releases/name=uaa?
+  value:
+    name: uaa
+    sha1: 6216399c457ffe84599aed41a53c3184ca7476a1
+    url: https://nextcloud.paas-ta.org/index.php/s/jMRABZZto5Dg4mQ/download
+    version: 271.11.0-PaaS-TA
+- type: replace
+  path: /releases/name=credhub?
+  value:
+    name: credhub
+    sha1: 5d142be13e2a4ea92a3b8a6fa486ec8077064a97
+    url: https://nextcloud.paas-ta.org/index.php/s/3kYJjZG9aXrWrwo/download
+    version: 2.9.0-PaaS-TA-v2
+```
+
+```
+## 해당 내용이 있는지 체크
+$ vi bosh/deploy-{사용중인 IaaS}.sh
+-o cce.yml \
+
+$ vi paasta/deploy-{사용중인 IaaS}.sh
+ -o operations/cce.yml \
+```
+
+###### 1.4. 배포
+BOSH 와 PaaS-TA AP Core를 배포한다.
+- BOSH 배포
+```
+## BOSH 배포
+$ cd bosh
+$ source deploy-{사용중인 IaaS}.sh
+
+## 배포 완료 시 기존 사용중이던 VM 확인
+$ bosh vms
+```
+
+AP Core에 배포되는 UAA와 Credhub의 경우 업데이트 시 인스턴스의 용량이 부족할 수 있으므로 여유 공간을 확인 후 부족할 시 VM Type을 변경하여 배포한다.
+```diff
+$ bosh -d paasta ssh uaa/0
+
+uaa/29704389-1778-417c-be1e-002e0c403d9c:~$ df -h
+Filesystem      Size  Used Avail Use% Mounted on
+devtmpfs        974M     0  974M   0% /dev
+tmpfs           994M     0  994M   0% /dev/shm
+tmpfs           994M  104M  890M  11% /run
+tmpfs           5.0M     0  5.0M   0% /run/lock
+tmpfs           994M     0  994M   0% /sys/fs/cgroup
+/dev/vda1       2.8G  1.8G  835M  69% /
++/dev/vda3        15G  921M   14G   7% /var/vcap/data
+tmpfs            16M  304K   16M   2% /var/vcap/data/sys/run
+tmpfs           199M     0  199M   0% /run/user/1006
+
+## Avail 이 1G 이상 확보되어야 배포 가능, 부족할 시 Cloud-config를 참고하여 vars.yml의 vm_type을 변경하여 배포한다.
+## VM Type을 변경 시 필요에 따라 로그파일 백업을 진행한다.
+```
+
+- PaaS-TA AP Core 배포
+```
+## PaaS-TA AP Core 배포
+$ cd paasta
+$ source deploy-{사용중인 IaaS}.sh
+
+
+releases:
+- name: credhub
+-   sha1: f60d84d89a2ca5ef0b4c904e7d618b6f20bae761
++   sha1: 5d142be13e2a4ea92a3b8a6fa486ec8077064a97
+-   url: https://nextcloud.paas-ta.org/index.php/s/s6Dz7ZQoDN2fAad/download
++   url: https://nextcloud.paas-ta.org/index.php/s/3kYJjZG9aXrWrwo/download
+-   version: 2.9.0-PaaS-TA
++   version: 2.9.0-PaaS-TA-v2
+- name: uaa
+-   sha1: c56b0bd3031a673b3753fba35d3f2caff2f497e2
++   sha1: 6216399c457ffe84599aed41a53c3184ca7476a1
+-   url: https://nextcloud.paas-ta.org/index.php/s/B2wZSE6LEnRJn3c/download
++   url: https://nextcloud.paas-ta.org/index.php/s/jMRABZZto5Dg4mQ/download
+-   version: 75.1.0-PaaS-TA-v2
++   version: 75.1.0-PaaS-TA-v3
+
+- manifest_version: v5.6.2
+
++ manifest_version: v5.6.3
+Task 51
+
+Task 51 | 03:20:10 | Preparing deployment: Preparing deployment (00:00:20)
+.....
+Task 51 Started  Wed Dec 15 03:20:10 UTC 2021
+Task 51 Finished Wed Dec 15 03:25:56 UTC 2021
+Task 51 Duration 00:05:46
+Task 51 done
+
+Succeeded
+
+```
+
+##### <div id='2'> 2. paasta-deployment 5.5.2 이하 버전 사용 시 (UAA 와 Credhub 릴리즈 직접 생성)
+AP의 업데이트가 아닌 모듈의 업데이트 시 **UAA**와 **Credhub**의 작업을 진행하여 부분적으로 업데이트 한다.  
+이 가이드는 5.5.2의 UAA 74.29.0-PaaS-TA 을 기준으로 작성하였다. (실제 생성시 UAA와 Credhub를 같이 작업한다  
+모듈 최신버전 github  
+uaa :  https://github.com/PaaS-TA/uaa-release/tree/75.1.0-PaaS-TA-v3  
+credhub : https://github.com/PaaS-TA/credhub-release/tree/2.9.0-PaaS-TA-v2  
+
+###### 2.1. git 다운로드 (작업하고 싶은 릴리즈 버전으로 다운로드)
+```
+$ git clone https://github.com/PaaS-TA/uaa-release.git -b 74.29.0-PaaS-TA
+```
+
+###### 2.2. git submodule 업데이트
+```
+$ cd uaa-release
+$ git submodule init
+$ git submodule update
+```
+###### 2.3. log4j version fix
+https://github.com/PaaS-TA/uaa-release/blob/74.29.0-PaaS-TA/PaaS-TA_README.md 를 확인후 해당되는 버전에 맞게 보안조치 작업 후 log4j 버전에 대한 업데이트를 진행한다.
+
+```
+$ vi src/uaa/dependencies.gradle
+ext['log4j2.version'] = '2.15.0'             #추가
+```
+
+
+###### 2.4. 릴리즈 생성
+```
+$ export UAA_VERSION=74.29.0
+$ bosh create-release --name uaa --sha2 --force --tarball ./uaa-release-74.29.0-PaaS-TA-v3.tgz --version 74.29.0-PaaS-TA-v3
+```
+
+###### 2.5 sha1값 확인
+```
+## sha1 값 확인
+$ sha1sum uaa-release-74.29.0-PaaS-TA-v3.tgz
+198a2b5d769c856c55813506306e89a64f178256  uaa-release-74.29.0-PaaS-TA-v3.tgz
+```
+
+
+###### 2.6. 배포 deployment에 cce.yml 변경
+과거 설치되었던 Deployment의 릴리즈 파일을 사용할 수 있게 작업을 진행한다.
+```
+$ vi bosh/cce.yml
+$ vi paasta/operations/cce.yml
+
+
+# 해당 내용 삽입
+- type: replace
+  path: /releases/name=uaa?
+  value:
+    name: uaa
+    sha1: {UAA RELEASE SHA1}
+    url: {UAA RELEASE PATH}
+    version: 74.29.0-PaaS-TA
+- type: replace
+  path: /releases/name=credhub?
+  value:
+    name: credhub
+    sha1: {Credhub RELEASE SHA1}
+    url: {Credhub RELEASE PATH}
+    version: 2.8.0-PaaS-TA
+
+```
+
+
+
+###### 2.7. 배포
+
+BOSH 와 PaaS-TA AP Core를 배포한다.
+- BOSH 배포
+```
+## BOSH 배포
+$ cd bosh
+$ source deploy-{사용중인 IaaS}.sh
+
+## 배포 완료 시 기존 사용중이던 VM 확인
+$ bosh vms
+```
+
+AP Core에 배포되는 UAA와 Credhub의 경우 업데이트 시 인스턴스의 용량이 부족할 수 있으므로 여유 공간을 확인 후 부족할 시 VM Type을 변경하여 배포한다.
+```diff
+$ bosh -d paasta ssh uaa/0
+
+uaa/29704389-1778-417c-be1e-002e0c403d9c:~$ df -h
+Filesystem      Size  Used Avail Use% Mounted on
+devtmpfs        974M     0  974M   0% /dev
+tmpfs           994M     0  994M   0% /dev/shm
+tmpfs           994M  104M  890M  11% /run
+tmpfs           5.0M     0  5.0M   0% /run/lock
+tmpfs           994M     0  994M   0% /sys/fs/cgroup
+/dev/vda1       2.8G  1.8G  835M  69% /
++/dev/vda3        15G  921M   14G   7% /var/vcap/data
+tmpfs            16M  304K   16M   2% /var/vcap/data/sys/run
+tmpfs           199M     0  199M   0% /run/user/1006
+
+## Avail 이 1G 이상 확보되어야 배포 가능, 부족할 시 Cloud-config를 참고하여 vars.yml의 vm_type을 변경하여 배포한다.
+## VM Type을 변경 시 필요에 따라 로그파일 백업을 진행한다.
+```
+
+- PaaS-TA AP Core 배포
+```
+## PaaS-TA AP Core 배포
+$ cd paasta
+$ source deploy-{사용중인 IaaS}.sh
+
+
+Task 51
+
+Task 51 | 03:20:10 | Preparing deployment: Preparing deployment (00:00:20)
+.....
+Task 51 Started  Wed Dec 15 03:20:10 UTC 2021
+Task 51 Finished Wed Dec 15 03:25:56 UTC 2021
+Task 51 Duration 00:05:46
+Task 51 done
+
+Succeeded
+
+```
