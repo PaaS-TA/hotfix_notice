@@ -53,7 +53,7 @@ $ vi cce.yml
     name: uaa
     sha1: 6216399c457ffe84599aed41a53c3184ca7476a1
     url: https://nextcloud.paas-ta.org/index.php/s/jMRABZZto5Dg4mQ/download
-    version: 271.11.0-PaaS-TA
+    version: 75.1.0-PaaS-TA-v3
 - type: replace
   path: /releases/name=credhub?
   value:
