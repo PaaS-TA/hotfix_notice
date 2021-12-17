@@ -53,7 +53,7 @@ $ git clone https://github.com/PaaS-TA/paasta-deployment.git -b v5.6.4 paasta-de
 [Java Buildpack v4.45](https://github.com/cloudfoundry/java-buildpack/releases/tag/v4.45), [PHP Buildpack v4.4.53](https://github.com/cloudfoundry/php-buildpack/releases/tag/v4.4.53)  
 
 ```
-$ vi cce.yml
+$ vi bosh/cce.yml
 - type: replace
   path: /releases/name=uaa?
   value:
@@ -63,6 +63,23 @@ $ vi cce.yml
     version: 75.1.0-PaaS-TA-v3.1
 - type: replace
   path: /releases/name=credhub?
+  value:
+    name: credhub
+    sha1: 3da7d1901351c87e79dea4285ba85b3f2b013a2a
+    url: https://nextcloud.paas-ta.org/index.php/s/fLYAatkdj8XE35R/download
+    version: 2.9.0-PaaS-TA-v2.1
+  
+
+$ vi paasta/operations/cce.yml
+- type: replace
+  path: /releases/name=uaa
+  value:
+    name: uaa
+    sha1: d31457bdd200b7bb02e4e6f5ca24e3dbf69ffe82
+    url: https://nextcloud.paas-ta.org/index.php/s/f2mjNX3RT93RxJg/download
+    version: 75.1.0-PaaS-TA-v3.1
+- type: replace
+  path: /releases/name=credhub
   value:
     name: credhub
     sha1: 3da7d1901351c87e79dea4285ba85b3f2b013a2a
