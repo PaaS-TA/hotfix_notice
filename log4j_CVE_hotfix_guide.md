@@ -16,11 +16,12 @@
 
 #### 조치 방안 (log4j 2.16 업데이트)
 - [paasta-deployment 5.6.0 ~ 5.6.3 버전 사용 시](#1)
-  - log4j 관련 패치를 적용한 paasta-deployment 5.6.4 업데이트 (BOSH, PaaS-TA AP, java-buildpack의 일부 모듈, php-buildpack의 일부 모듈)
+  - log4j 관련 패치를 적용한 paasta-deployment 5.6.4 업데이트 (BOSH, PaaS-TA AP, java-buildpack의 일부 모듈, php-buildpack의 일부 모듈)  
      ※ UAA : 75.1.0-PaaS-TA-v3.1 , Credhub : 2.9.0-PaaS-TA-v2.1, PHP Buildpack Release : 4.4.53, Java Buildpack Release : 4.45 
 
 + [paasta-deployment 5.5.2 이하 버전 사용 시](#2)
-  + UAA와 Credhub를 설치된 버전에 맞춰 릴리즈를 생성 후 릴리즈만 반영하여 업데이트 (BOSH, PaaS-TA AP)
+  + UAA와 Credhub를 설치된 버전에 맞춰 릴리즈를 생성 후 릴리즈만 반영하여 업데이트 (BOSH, PaaS-TA AP)  
+    PHP Buildpack 4.4.53, Java Buildpack 4.45 업데이트
 
 ***
 
