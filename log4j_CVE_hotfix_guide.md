@@ -7,18 +7,19 @@
 - Apache Log4j 2*에서 발생하는 원격코드 실행 취약점(CVE-2021-44228)
 - Apache Log4j 2에서 발생하는 서비스 거부 취약점(CVE-2021-45046)
 - Apache Log4j 1.x에서 발생하는 원격코드 실행 취약점(CVE-2021-4104)
+- Apache Log4j 2에서 발생하는 원격코드 실행 취약점(CVE-2021-44832)
 
 #### 영향을 받는 버전
-- paasta-deployment 5.6.3 이하 버전
+- paasta-deployment 5.6.5 이하 버전
 
 #### 영향을 받는 모듈
 - BOSH (UAA, Credhub)
 - PaaS-TA AP Core (UAA, Credhub, java-buildpack의 일부 모듈, php-buildpack의 일부 모듈)
 
 #### 조치 방안 (log4j 2.17 업데이트)
-- [paasta-deployment 5.6.0 ~ 5.6.3 버전 사용 시](#1)
-  - log4j 관련 패치를 적용한 paasta-deployment 5.6.4 업데이트 (BOSH, PaaS-TA AP, java-buildpack의 일부 모듈, php-buildpack의 일부 모듈)  
-     ※ UAA : 75.1.0-PaaS-TA-v3.2 , Credhub : 2.9.0-PaaS-TA-v2.2, PHP Buildpack Release : 4.4.53, Java Buildpack Release : 4.45 
+- [paasta-deployment 5.6.0 ~ 5.6.5 버전 사용 시](#1)
+  - log4j 관련 패치를 적용한 paasta-deployment 5.6.6 업데이트 (BOSH, PaaS-TA AP, java-buildpack의 일부 모듈, php-buildpack의 일부 모듈)  
+     ※ UAA : 75.1.0-PaaS-TA-v3.3 , Credhub : 2.9.0-PaaS-TA-v2.3, PHP Buildpack Release : 4.4.53, Java Buildpack Release : 4.45 
 
 + [paasta-deployment 5.5.2 이하 버전 사용 시](#2)
   + UAA와 Credhub를 설치된 버전에 맞춰 릴리즈를 생성 후 릴리즈만 반영하여 업데이트 (BOSH, PaaS-TA AP)  
@@ -27,16 +28,16 @@
 ***
 
 #### 조치 방안 세부 설명
-##### <div id='1'> 1. paasta-deployment 5.6.0 ~ 5.6.3 버전 사용 시 (paasta-deployment 5.6.4 업데이트)
+##### <div id='1'> 1. paasta-deployment 5.6.0 ~ 5.6.5 버전 사용 시 (paasta-deployment 5.6.6 업데이트)
 
-###### 1.1. paasta-deployment 5.6.4 다운로드
+###### 1.1. paasta-deployment 5.6.6 다운로드
 
 ```
-$ git clone https://github.com/PaaS-TA/paasta-deployment.git -b v5.6.4 paasta-deployment-5.6.4
+$ git clone https://github.com/PaaS-TA/paasta-deployment.git -b v5.6.6 paasta-deployment-5.6.6
 ```
 
 ###### 1.2. 관련 변수 설정
-사용중인 IaaS에 맞춰서 전에 배포하였던 변수 파일을 paasta-deployment-5.6.4에 옮기거나 설치 관련 변수를 작성한다.
+사용중인 IaaS에 맞춰서 전에 배포하였던 변수 파일을 paasta-deployment-5.6.6에 옮기거나 설치 관련 변수를 작성한다.
 
 - 이동 필요 파일
     - bosh/{사용중인 IaaS}/creds.yml
@@ -60,16 +61,16 @@ $ vi bosh/cce.yml
   path: /releases/name=uaa?
   value:
     name: uaa
-    sha1: ec32aaecb2210c02cbd4ccf37dbab3c875743c1f
-    url: https://nextcloud.paas-ta.org/index.php/s/MrDmqYTQggaiSxr/download
-    version: 75.1.0-PaaS-TA-v3.2
+    sha1: ba02806e021a0e0d7d1dbc9822212e33cf639407
+    url: https://nextcloud.paas-ta.org/index.php/s/Xpca9yyjaRpXEx3/download
+    version: 75.1.0-PaaS-TA-v3.3
 - type: replace
   path: /releases/name=credhub?
   value:
     name: credhub
-    sha1: 0ce5fa8c272a59adb6aaa75e1b8f26c69e390cdc
-    url: https://nextcloud.paas-ta.org/index.php/s/mQLwieLS53YJqFg/download
-    version: 2.9.0-PaaS-TA-v2.2
+    sha1: 1352c1bc45576fd8caf0851e0c20eb950702664a
+    url: https://nextcloud.paas-ta.org/index.php/s/Litaed4ckiX6RKk/download
+    version: 2.9.0-PaaS-TA-v2.3
   
 
 $ vi paasta/operations/cce.yml
@@ -77,16 +78,16 @@ $ vi paasta/operations/cce.yml
   path: /releases/name=uaa
   value:
     name: uaa
-    sha1: ec32aaecb2210c02cbd4ccf37dbab3c875743c1f
-    url: https://nextcloud.paas-ta.org/index.php/s/MrDmqYTQggaiSxr/download
-    version: 75.1.0-PaaS-TA-v3.2
+    sha1: ba02806e021a0e0d7d1dbc9822212e33cf639407
+    url: https://nextcloud.paas-ta.org/index.php/s/Xpca9yyjaRpXEx3/download
+    version: 75.1.0-PaaS-TA-v3.3
 - type: replace
   path: /releases/name=credhub
   value:
     name: credhub
-    sha1: 0ce5fa8c272a59adb6aaa75e1b8f26c69e390cdc
-    url: https://nextcloud.paas-ta.org/index.php/s/mQLwieLS53YJqFg/download
-    version: 2.9.0-PaaS-TA-v2.2
+    sha1: 1352c1bc45576fd8caf0851e0c20eb950702664a
+    url: https://nextcloud.paas-ta.org/index.php/s/Litaed4ckiX6RKk/download
+    version: 2.9.0-PaaS-TA-v2.3
 - type: replace
   path: /releases/name=php-buildpack
   value:
@@ -154,18 +155,18 @@ $ source deploy-{사용중인 IaaS}.sh
 releases:
 - name: credhub
 -   sha1: f60d84d89a2ca5ef0b4c904e7d618b6f20bae761
-+   sha1: 0ce5fa8c272a59adb6aaa75e1b8f26c69e390cdc
++   sha1: 1352c1bc45576fd8caf0851e0c20eb950702664a
 -   url: https://nextcloud.paas-ta.org/index.php/s/s6Dz7ZQoDN2fAad/download
-+   url: https://nextcloud.paas-ta.org/index.php/s/mQLwieLS53YJqFg/download
++   url: https://nextcloud.paas-ta.org/index.php/s/Litaed4ckiX6RKk/download
 -   version: 2.9.0-PaaS-TA
-+   version: 2.9.0-PaaS-TA-v2.2
++   version: 2.9.0-PaaS-TA-v2.3
 - name: uaa
 -   sha1: c56b0bd3031a673b3753fba35d3f2caff2f497e2
-+   sha1: ec32aaecb2210c02cbd4ccf37dbab3c875743c1f
++   sha1: ba02806e021a0e0d7d1dbc9822212e33cf639407
 -   url: https://nextcloud.paas-ta.org/index.php/s/B2wZSE6LEnRJn3c/download
-+   url: https://nextcloud.paas-ta.org/index.php/s/MrDmqYTQggaiSxr/download
++   url: https://nextcloud.paas-ta.org/index.php/s/Xpca9yyjaRpXEx3/download
 -   version: 75.1.0-PaaS-TA-v2
-+   version: 75.1.0-PaaS-TA-v3.2
++   version: 75.1.0-PaaS-TA-v3.3
 - name: java-buildpack
 -   sha1: 0d4d939490b0f16f4d2f8dfd937185479bf9f877
 +   sha1: b11614fa65da34b171701287f1f1aa6da4ebba63
@@ -184,7 +185,7 @@ releases:
 
 - manifest_version: v5.6.2
 
-+ manifest_version: v5.6.4
++ manifest_version: v5.6.6
 Task 51
 
 Task 51 | 03:20:10 | Preparing deployment: Preparing deployment (00:00:20)
@@ -202,8 +203,8 @@ Succeeded
 AP의 업데이트가 아닌 모듈의 업데이트 시 **UAA**와 **Credhub**의 작업을 진행하여 부분적으로 업데이트 한다.  
 이 가이드는 5.5.2의 UAA 74.29.0-PaaS-TA 을 기준으로 작성하였다. (실제 생성시 UAA와 Credhub를 같이 작업한다  
 모듈 최신버전 github  
-uaa :  https://github.com/PaaS-TA/uaa-release/tree/75.1.0-PaaS-TA-v3.2  
-credhub : https://github.com/PaaS-TA/credhub-release/tree/2.9.0-PaaS-TA-v2.2  
+uaa :  https://github.com/PaaS-TA/uaa-release/tree/75.1.0-PaaS-TA-v3.3  
+credhub : https://github.com/PaaS-TA/credhub-release/tree/2.9.0-PaaS-TA-v2.3  
 
 ###### 2.1. git 다운로드 (작업하고 싶은 릴리즈 버전으로 다운로드)
 ```
@@ -217,19 +218,19 @@ $ git submodule init
 $ git submodule update
 ```
 ###### 2.3. log4j version fix
-https://github.com/PaaS-TA/uaa-release/blob/75.1.0-PaaS-TA-v3.2/PaaS-TA_README.md 와 https://github.com/PaaS-TA/credhub-release/blob/2.9.0-PaaS-TA-v2.2/PaaS-TA_README.md 를 확인 후 해당되는 버전에 맞게 보안조치 작업 후 log4j 버전에 대한 업데이트를 진행한다. (UAA와 Credhub의 최신 패치 버전을 참고한다.)
+https://github.com/PaaS-TA/uaa-release/blob/75.1.0-PaaS-TA-v3.3/PaaS-TA_README.md 와 https://github.com/PaaS-TA/credhub-release/blob/2.9.0-PaaS-TA-v2.3/PaaS-TA_README.md 를 확인 후 해당되는 버전에 맞게 보안조치 작업 후 log4j 버전에 대한 업데이트를 진행한다. (UAA와 Credhub의 최신 패치 버전을 참고한다.)
 
 ```diff
 ## uaa의 경우
 $ vi src/uaa/dependencies.gradle
-+ ext['log4j2.version'] = '2.17.0'             #추가
++ ext['log4j2.version'] = '2.17.1'             #추가
   
   
   
   
 ## credhub의 경우
 $ vi src/uaa/dependencies.gradle
-+ log4jVersion = '2.17.0'               #추가
++ log4jVersion = '2.17.1'               #추가
 
 
 $ vi src/credhub/applications/credhub-api/build.gradle
@@ -243,15 +244,14 @@ $ vi src/credhub/applications/credhub-api/build.gradle
 
 ###### 2.4. 릴리즈 생성
 ```
-$ export UAA_VERSION=74.29.0
-$ bosh create-release --name uaa --sha2 --force --tarball ./uaa-release-74.29.0-PaaS-TA-v3.1.tgz --version 74.29.0-PaaS-TA-v3.1
+$ bosh create-release --name uaa --sha2 --force --tarball ./uaa-release-74.29.0-PaaS-TA.tgz --version 74.29.0-PaaS-TA
 ```
 
 ###### 2.5 sha1값 확인
 ```
 ## sha1 값 확인
-$ sha1sum uaa-release-74.29.0-PaaS-TA-v3.1.tgz
-198a2b5d769c856c55813506306e89a64f178256  uaa-release-74.29.0-PaaS-TA-v3.1.tgz
+$ sha1sum uaa-release-74.29.0-PaaS-TA-v3.3.tgz
+198a2b5d769c856c55813506306e89a64f178256  uaa-release-74.29.0-PaaS-TA.tgz
 ```
 
 
